@@ -1,5 +1,6 @@
-import { View, TextInput, Button } from "react-native";
-import { useThemeStore } from "../store/theme"; // adjust path
+import { View, Text, TextInput, Button } from "react-native";
+import { useThemeStore } from "../store/theme";
+import { Colors } from "../constants/theme";
 
 type Props = {
   exercise: string;
@@ -39,62 +40,140 @@ export default function WorkoutForm({
   onAddWorkout,
 }: Props) {
   const theme = useThemeStore((s) => s.theme);
-  const bg = theme === "dark" ? "#111" : "#fff";
-  const text = theme === "dark" ? "#fff" : "#000";
-  const card = theme === "dark" ? "#222" : "#f5f5f5";
+  const colors = theme === "dark" ? Colors.dark : Colors.light;
 
   return (
-    <View style={{ gap: 10 }}>
+    <View
+      style={{
+        gap: 10,
+        backgroundColor: colors.card,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: colors.border,
+        padding: 14,
+      }}
+    >
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "bold", textAlign: "center" }}>
+        Add Workout
+      </Text>
+
       <TextInput
         placeholder="Exercise name"
+        placeholderTextColor={colors.textMuted}
         value={exercise}
         onChangeText={setExercise}
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
+
       <TextInput
         placeholder="Sets"
+        placeholderTextColor={colors.textMuted}
         value={sets}
         onChangeText={setSets}
         keyboardType="numeric"
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
+
       <TextInput
         placeholder="Reps"
+        placeholderTextColor={colors.textMuted}
         value={reps}
         onChangeText={setReps}
         keyboardType="numeric"
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
+
       <TextInput
         placeholder="Weight"
+        placeholderTextColor={colors.textMuted}
         value={weight}
         onChangeText={setWeight}
         keyboardType="numeric"
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
+
       <TextInput
         placeholder="Duration minutes"
+        placeholderTextColor={colors.textMuted}
         value={duration}
         onChangeText={setDuration}
         keyboardType="numeric"
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
+
       <TextInput
         placeholder="Estimated calories burned"
+        placeholderTextColor={colors.textMuted}
         value={estimatedCaloriesBurned}
         onChangeText={setEstimatedCaloriesBurned}
         keyboardType="numeric"
-        style={{ borderWidth: 1, padding: 10 }}
-      />
-      <TextInput
-        placeholder="Notes"
-        value={notes}
-        onChangeText={setNotes}
-        style={{ borderWidth: 1, padding: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+        }}
       />
 
-      <Button title="Autofill Workout Text" onPress={onAutofill} />
-      <Button title="Add Workout" onPress={onAddWorkout} />
+      <TextInput
+        placeholder="Notes"
+        placeholderTextColor={colors.textMuted}
+        value={notes}
+        onChangeText={setNotes}
+        multiline
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          color: colors.text,
+          padding: 12,
+          borderRadius: 12,
+          minHeight: 90,
+          textAlignVertical: "top",
+        }}
+      />
+
+      <View style={{ gap: 10, marginTop: 4 }}>
+        <Button title="Future AI Voice Input" onPress={onAutofill} />
+        <Button title="Add Workout" onPress={onAddWorkout} />
+      </View>
     </View>
   );
 }

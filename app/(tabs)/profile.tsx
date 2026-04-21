@@ -6,14 +6,18 @@ import { useEffect, useState } from "react";
 import { saveSetting, getSetting } from "../../db/settings";
 import { useThemeStore } from "../../store/theme";
 import { db } from "../../db";
+import { Colors } from "../../constants/theme";
+
 
 export default function ProfileScreen() {
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
 
-  const bg = theme === "dark" ? "#111" : "#fff";
-  const text = theme === "dark" ? "#fff" : "#000";
-  const card = theme === "dark" ? "#222" : "#f5f5f5";
+  const colors = theme === "dark" ? Colors.dark : Colors.light;
+
+  const bg = colors.background;
+  const text = colors.text;
+  const card = colors.card;
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -89,74 +93,162 @@ export default function ProfileScreen() {
   const weightArrow = weightChange < 0 ? "↓" : weightChange > 0 ? "↑" : "→";
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, gap: 12, backgroundColor: bg }}>
-      <Text style={{ fontSize: 26, fontWeight: "bold", color: text }}>Profile</Text>
+    <ScrollView
+      contentContainerStyle={{
+        padding: 10,
+        gap: 11,
+        backgroundColor: colors.background,
+        minHeight: "100%",
+      }}
+    >
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 26,
+          fontWeight: "bold",
+          color: colors.text,
+          marginBottom: 4,
+        }}
+      >
+        Profile
+      </Text>
 
       <View style={{ alignItems: "center", marginBottom: 10 }}>
         <Image
           source={
             imageUri
               ? { uri: imageUri }
-              : { uri: "https://ui-avatars.com/api/?name=User&background=cccccc&color=000000&size=256" }
+              : {
+                uri: "https://ui-avatars.com/api/?name=User&background=cccccc&color=000000&size=256",
+              }
           }
-          style={{ width: 100, height: 100, borderRadius: 50 }}
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: colors.border,
+          }}
         />
       </View>
 
-      <Button title="Change Profile Picture" onPress={handlePickImage} />
-
-      <View style={{ backgroundColor: card, padding: 12, borderRadius: 12, gap: 10 }}>
+      <View style={{flexDirection: "row", justifyContent: "center"}}>
+        <Button title="Edit Profile Picture" onPress={handlePickImage} />
+        <Button title="Logout" onPress={handleLogout} />
+      </View>
+      
+      <View
+        style={{
+          backgroundColor: colors.card,
+          padding: 14,
+          borderRadius: 16,
+          gap: 10,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
         <TextInput
           placeholder="Name"
-          placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
+          placeholderTextColor={colors.textMuted}
           value={name}
           onChangeText={setName}
-          style={{ borderWidth: 1, padding: 10, color: text, borderColor: "#888" }}
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            color: colors.text,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.background,
+          }}
         />
         <TextInput
           placeholder="Height (ex: 5'6 or 167 cm)"
-          placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
+          placeholderTextColor={colors.textMuted}
           value={height}
           onChangeText={setHeight}
-          style={{ borderWidth: 1, padding: 10, color: text, borderColor: "#888" }}
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            color: colors.text,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.background,
+          }}
         />
         <TextInput
           placeholder="Starting Weight"
-          placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
+          placeholderTextColor={colors.textMuted}
           value={startWeight}
           onChangeText={setStartWeight}
           keyboardType="numeric"
-          style={{ borderWidth: 1, padding: 10, color: text, borderColor: "#888" }}
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            color: colors.text,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.background,
+          }}
         />
         <TextInput
           placeholder="Age"
-          placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
+          placeholderTextColor={colors.textMuted}
           value={age}
           onChangeText={setAge}
           keyboardType="numeric"
-          style={{ borderWidth: 1, padding: 10, color: text, borderColor: "#888" }}
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            color: colors.text,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.background,
+          }}
         />
         <TextInput
           placeholder="Gender"
-          placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
+          placeholderTextColor={colors.textMuted}
           value={gender}
           onChangeText={setGender}
-          style={{ borderWidth: 1, padding: 10, color: text, borderColor: "#888" }}
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            color: colors.text,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.background,
+          }}
         />
+
         <Button title="Save Profile" onPress={saveProfile} />
       </View>
 
-      <View style={{ backgroundColor: card, padding: 12, borderRadius: 12, gap: 6 }}>
-        <Text style={{ color: text, fontWeight: "bold" }}>Weight Summary</Text>
-        <Text style={{ color: text }}>Starting Weight: {startWeight || "Not set"}</Text>
-        <Text style={{ color: text }}>Current Weight: {currentWeight || "No entries yet"}</Text>
-        <Text style={{ color: text }}>
+      <View
+        style={{
+          backgroundColor: colors.card,
+          padding: 14,
+          borderRadius: 16,
+          gap: 6,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
+        <Text style={{ color: colors.text, fontWeight: "bold", fontSize: 16 }}>
+          Weight Summary
+        </Text>
+        <Text style={{ color: colors.text }}>
+          Starting Weight: {startWeight || "Not set"}
+        </Text>
+        <Text style={{ color: colors.text }}>
+          Current Weight: {currentWeight || "No entries yet"}
+        </Text>
+        <Text style={{ color: colors.text }}>
           Change: {weightArrow} {Math.abs(weightChange).toFixed(1)}
         </Text>
       </View>
 
       <Button
-        title={`Theme: ${theme}`}
+        title={` ${theme}`}
         onPress={() => {
           const next = theme === "light" ? "dark" : "light";
           setTheme(next);
@@ -164,7 +256,7 @@ export default function ProfileScreen() {
         }}
       />
 
-      <Button title="Logout" onPress={handleLogout} />
+     
     </ScrollView>
   );
 }

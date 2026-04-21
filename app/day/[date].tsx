@@ -7,17 +7,14 @@ import MealForm from "../../components/MealForm";
 import WorkoutForm from "../../components/WorkoutForm";
 import EntryList from "../../components/EntryList";
 import StatsCard from "../../components/StatsCard";
-import { useThemeStore } from "../../store/theme"; // adjust path
-
+import { useThemeStore } from "../../store/theme";
+import { Colors } from "../../constants/theme";
 
 export default function DayScreen() {
+  const theme = useThemeStore((s) => s.theme);
+  const colors = theme === "dark" ? Colors.dark : Colors.light;
 
-const theme = useThemeStore((s) => s.theme);
-const bg = theme === "dark" ? "#111" : "#fff";
-const text = theme === "dark" ? "#fff" : "#000";
-const card = theme === "dark" ? "#222" : "#f5f5f5";
-type TabType = "meals" | "workouts" | "stats";
-
+  type TabType = "meals" | "workouts" | "stats";
 
   const { date } = useLocalSearchParams<{ date: string }>();
   const [tab, setTab] = useState<TabType>("meals");
@@ -52,15 +49,10 @@ type TabType = "meals" | "workouts" | "stats";
       : 0;
 
   const loadData = () => {
-    const mealRows = db.getAllSync("SELECT * FROM meal_entries WHERE date = ?", [date]);
-    const workoutRows = db.getAllSync("SELECT * FROM workout_entries WHERE date = ?", [date]);
-    const waterRows = db.getAllSync("SELECT * FROM water_entries WHERE date = ?", [date]);
-    const weightRows = db.getAllSync("SELECT * FROM body_weight_entries WHERE date = ?", [date]);
-
-    setWeightEntries(weightRows as any[]);
-    setMeals(mealRows as any[]);
-    setWorkouts(workoutRows as any[]);
-    setWaterEntries(waterRows as any[]);
+    setMeals(db.getAllSync("SELECT * FROM meal_entries WHERE date = ?", [date]) as any[]);
+    setWorkouts(db.getAllSync("SELECT * FROM workout_entries WHERE date = ?", [date]) as any[]);
+    setWaterEntries(db.getAllSync("SELECT * FROM water_entries WHERE date = ?", [date]) as any[]);
+    setWeightEntries(db.getAllSync("SELECT * FROM body_weight_entries WHERE date = ?", [date]) as any[]);
   };
 
   useEffect(() => {
@@ -68,16 +60,8 @@ type TabType = "meals" | "workouts" | "stats";
   }, [date]);
 
   const addWeight = () => {
-    if (!dailyWeight.trim()) {
-      alert("Enter weight");
-      return;
-    }
-
-    db.runSync(
-      `INSERT INTO body_weight_entries (date, weight) VALUES (?, ?)`,
-      [date, Number(dailyWeight || 0)]
-    );
-
+    if (!dailyWeight.trim()) return alert("Enter weight");
+    db.runSync(`INSERT INTO body_weight_entries (date, weight) VALUES (?, ?)`, [date, Number(dailyWeight)]);
     setDailyWeight("");
     loadData();
   };
@@ -87,97 +71,42 @@ type TabType = "meals" | "workouts" | "stats";
     loadData();
   };
 
-
-
-
   const addMeal = () => {
-    if (!mealName.trim()) {
-      alert("Enter a food name");
-      return;
-    }
+    if (!mealName.trim()) return alert("Enter a food name");
 
     db.runSync(
       `INSERT INTO meal_entries (date, meal_type, name, calories, protein, carbs, fats)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        date,
-        mealType,
-        mealName.trim(),
-        Number(calories || 0),
-        Number(protein || 0),
-        Number(carbs || 0),
-        Number(fats || 0),
-      ]
+      [date, mealType, mealName.trim(), Number(calories), Number(protein), Number(carbs), Number(fats)]
     );
 
-    setMealName("");
-    setCalories("");
-    setProtein("");
-    setCarbs("");
-    setFats("");
+    setMealName(""); setCalories(""); setProtein(""); setCarbs(""); setFats("");
     loadData();
   };
 
   const addWater = () => {
-    if (!waterAmount.trim()) {
-      alert("Enter water amount");
-      return;
-    }
-
-    db.runSync(
-      `INSERT INTO water_entries (date, amount_ml) VALUES (?, ?)`,
-      [date, Number(waterAmount || 0)]
-    );
-
+    if (!waterAmount.trim()) return alert("Enter water amount");
+    db.runSync(`INSERT INTO water_entries (date, amount_ml) VALUES (?, ?)`, [date, Number(waterAmount)]);
     setWaterAmount("");
     loadData();
   };
 
   const addWorkout = () => {
-    if (!exercise.trim()) {
-      alert("Enter an exercise name");
-      return;
-    }
+    if (!exercise.trim()) return alert("Enter an exercise name");
 
     db.runSync(
       `INSERT INTO workout_entries (date, exercise_name, sets, reps, weight, duration_minutes, estimated_calories_burned, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        date,
-        exercise.trim(),
-        Number(sets || 0),
-        Number(reps || 0),
-        Number(weight || 0),
-        Number(duration || 0),
-        Number(estimatedCaloriesBurned || 0),
-        notes.trim(),
-      ]
+      [date, exercise.trim(), Number(sets), Number(reps), Number(weight), Number(duration), Number(estimatedCaloriesBurned), notes.trim()]
     );
 
-    setExercise("");
-    setSets("");
-    setReps("");
-    setWeight("");
-    setDuration("");
-    setEstimatedCaloriesBurned("");
-    setNotes("");
+    setExercise(""); setSets(""); setReps(""); setWeight(""); setDuration(""); setEstimatedCaloriesBurned(""); setNotes("");
     loadData();
   };
 
-  const deleteMeal = (id: number) => {
-    db.runSync("DELETE FROM meal_entries WHERE id = ?", [id]);
-    loadData();
-  };
-
-  const deleteWorkout = (id: number) => {
-    db.runSync("DELETE FROM workout_entries WHERE id = ?", [id]);
-    loadData();
-  };
-
-  const deleteWater = (id: number) => {
-    db.runSync("DELETE FROM water_entries WHERE id = ?", [id]);
-    loadData();
-  };
+  const deleteMeal = (id: number) => { db.runSync("DELETE FROM meal_entries WHERE id = ?", [id]); loadData(); };
+  const deleteWorkout = (id: number) => { db.runSync("DELETE FROM workout_entries WHERE id = ?", [id]); loadData(); };
+  const deleteWater = (id: number) => { db.runSync("DELETE FROM water_entries WHERE id = ?", [id]); loadData(); };
 
   const autofillMealFromText = () => {
     const parsed = parseMealText(mealName);
@@ -200,64 +129,100 @@ type TabType = "meals" | "workouts" | "stats";
     setNotes(parsed.notes);
   };
 
-  const totalCaloriesIn = meals.reduce((sum, m) => sum + Number(m.calories || 0), 0);
-  const totalCaloriesOut = workouts.reduce(
-    (sum, w) => sum + Number(w.estimated_calories_burned || 0),
-    0
-  );
-  const totalProtein = meals.reduce((sum, m) => sum + Number(m.protein || 0), 0);
-  const totalCarbs = meals.reduce((sum, m) => sum + Number(m.carbs || 0), 0);
-  const totalFats = meals.reduce((sum, m) => sum + Number(m.fats || 0), 0);
-  const totalWater = waterEntries.reduce((sum, w) => sum + Number(w.amount_ml || 0), 0);
+
+  const parsedDate = new Date(date);
+
+  const dayName = parsedDate.toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  const fullDate = parsedDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+
+
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60 }}>
-      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 16 }}>{date}</Text>
+    <ScrollView
+      contentContainerStyle={{
+        padding: 20,
+        paddingTop: 60,
+        backgroundColor: colors.background,
+        minHeight: "100%",
+      }}
+    >
+      {/* DATE HEADER */}
+      <View style={{ marginBottom: 20 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            color: colors.textMuted,
+            fontSize: 16,
+            fontWeight: "500",
+          }}
+        >
+          {dayName}
+        </Text>
 
-      <View style={{ flexDirection: "row", gap: 8, marginBottom: 20 }}>
-        <Pressable onPress={() => setTab("meals")} style={{ padding: 10, borderWidth: 1 }}>
-          <Text>Meals</Text>
-        </Pressable>
-        <Pressable onPress={() => setTab("workouts")} style={{ padding: 10, borderWidth: 1 }}>
-          <Text>Workouts</Text>
-        </Pressable>
-        <Pressable onPress={() => setTab("stats")} style={{ padding: 10, borderWidth: 1 }}>
-          <Text>Stats</Text>
-        </Pressable>
+        <Text
+          style={{
+            textAlign: "center",
+            color: colors.text,
+            fontSize: 28,
+            fontWeight: "bold",
+          }}
+        >
+          {fullDate}
+        </Text>
+      </View>
+
+      {/* TABS */}
+      <View style={{ flexDirection: "row", gap: 8, marginBottom: 20, justifyContent: "center",}}>
+        {["meals", "workouts", "stats"].map((t) => (
+          <Pressable
+            key={t}
+            onPress={() => setTab(t as TabType)}
+            style={{
+              padding: 10,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 10,
+              backgroundColor: tab === t ? colors.primary : colors.card,
+            }}
+          >
+            <Text style={{ color: tab === t ? "#fff" : colors.text }}>
+              {t.toUpperCase()}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
       {tab === "meals" && (
         <>
-          <MealForm
-            mealType={mealType}
-            setMealType={setMealType}
-            mealName={mealName}
-            setMealName={setMealName}
-            calories={calories}
-            setCalories={setCalories}
-            protein={protein}
-            setProtein={setProtein}
-            carbs={carbs}
-            setCarbs={setCarbs}
-            fats={fats}
-            setFats={setFats}
-            water={""}
-            setWater={() => { }}
-            onAutofill={autofillMealFromText}
-            onAddMeal={addMeal}
-          />
+          <MealForm {...{ mealType, setMealType, mealName, setMealName, calories, setCalories, protein, setProtein, carbs, setCarbs, fats, setFats }} water={""} setWater={() => { }} onAutofill={autofillMealFromText} onAddMeal={addMeal} />
 
           <EntryList type="meals" items={meals} onDelete={deleteMeal} />
 
           <View style={{ marginTop: 20, gap: 10 }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>Water</Text>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: colors.text }}>Water</Text>
+
             <TextInput
               placeholder="Water amount ml"
+              placeholderTextColor={colors.textMuted}
               value={waterAmount}
               onChangeText={setWaterAmount}
               keyboardType="numeric"
-              style={{ borderWidth: 1, padding: 10 }}
+              style={{
+                borderWidth: 1,
+                padding: 12,
+                borderRadius: 12,
+                borderColor: colors.border,
+                color: colors.text,
+                backgroundColor: colors.card,
+              }}
             />
+
             <Button title="Add Water" onPress={addWater} />
             <EntryList type="water" items={waterEntries} onDelete={deleteWater} />
           </View>
@@ -266,24 +231,8 @@ type TabType = "meals" | "workouts" | "stats";
 
       {tab === "workouts" && (
         <>
-          <WorkoutForm
-            exercise={exercise}
-            setExercise={setExercise}
-            sets={sets}
-            setSets={setSets}
-            reps={reps}
-            setReps={setReps}
-            weight={weight}
-            setWeight={setWeight}
-            duration={duration}
-            setDuration={setDuration}
-            estimatedCaloriesBurned={estimatedCaloriesBurned}
-            setEstimatedCaloriesBurned={setEstimatedCaloriesBurned}
-            notes={notes}
-            setNotes={setNotes}
-            onAutofill={autofillWorkoutFromText}
-            onAddWorkout={addWorkout}
-          />
+          <WorkoutForm {...{ exercise, setExercise, sets, setSets, reps, setReps, weight, setWeight, duration, setDuration, estimatedCaloriesBurned, setEstimatedCaloriesBurned, notes, setNotes }} onAutofill={autofillWorkoutFromText} onAddWorkout={addWorkout} />
+
           <EntryList type="workouts" items={workouts} onDelete={deleteWorkout} />
         </>
       )}
@@ -291,30 +240,38 @@ type TabType = "meals" | "workouts" | "stats";
       {tab === "stats" && (
         <>
           <StatsCard
-            totalCaloriesIn={totalCaloriesIn}
-            totalCaloriesOut={totalCaloriesOut}
-            totalProtein={totalProtein}
-            totalCarbs={totalCarbs}
-            totalFats={totalFats}
-            totalWater={totalWater}
+            totalCaloriesIn={meals.reduce((s, m) => s + Number(m.calories || 0), 0)}
+            totalCaloriesOut={workouts.reduce((s, w) => s + Number(w.estimated_calories_burned || 0), 0)}
+            totalProtein={meals.reduce((s, m) => s + Number(m.protein || 0), 0)}
+            totalCarbs={meals.reduce((s, m) => s + Number(m.carbs || 0), 0)}
+            totalFats={meals.reduce((s, m) => s + Number(m.fats || 0), 0)}
+            totalWater={waterEntries.reduce((s, w) => s + Number(w.amount_ml || 0), 0)}
             latestWeight={latestWeight}
           />
 
           <View style={{ marginBottom: 20, gap: 10 }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>Daily Weight</Text>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: colors.text }}>Daily Weight</Text>
+
             <TextInput
               placeholder="Weight"
+              placeholderTextColor={colors.textMuted}
               value={dailyWeight}
               onChangeText={setDailyWeight}
               keyboardType="numeric"
-              style={{ borderWidth: 1, padding: 10 }}
+              style={{
+                borderWidth: 1,
+                padding: 12,
+                borderRadius: 12,
+                borderColor: colors.border,
+                color: colors.text,
+                backgroundColor: colors.card,
+              }}
             />
-            <Button title="Add Weight" onPress={addWeight} />
 
+            <Button title="Add Weight" onPress={addWeight} />
             <EntryList type="weight" items={weightEntries} onDelete={deleteWeight} />
           </View>
         </>
-
       )}
     </ScrollView>
   );

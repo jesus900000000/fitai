@@ -1,9 +1,7 @@
 import { View, Text, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { useThemeStore } from "../store/theme"; // adjust path
-
-
-
+import { useThemeStore } from "../store/theme";
+import { Colors } from "../constants/theme";
 
 type Props = {
   totalCaloriesIn: number;
@@ -25,19 +23,36 @@ export default function StatsCard({
   latestWeight,
 }: Props) {
   const theme = useThemeStore((s) => s.theme);
-  const bg = theme === "dark" ? "#111" : "#fff";
-  const text = theme === "dark" ? "#fff" : "#000";
-  const card = theme === "dark" ? "#222" : "#f5f5f5";
+  const colors = theme === "dark" ? Colors.dark : Colors.light;
+
   return (
-    <View style={{ gap: 20 }}>
-      <Text>Calories In: {totalCaloriesIn}</Text>
-      <Text>Calories Out: {totalCaloriesOut}</Text>
-      <Text>Net Calories: {totalCaloriesIn - totalCaloriesOut}</Text>
-      <Text>Protein: {totalProtein}g</Text>
-      <Text>Carbs: {totalCarbs}g</Text>
-      <Text>Fats: {totalFats}g</Text>
-      <Text>Water: {totalWater}ml</Text>
-      <Text>Weight: {latestWeight || 0}</Text>
+    <View
+      style={{
+        gap: 20,
+        backgroundColor: colors.card,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: colors.border,
+        padding: 16,
+        marginBottom: 20,
+      }}
+    >
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "bold", textAlign: "center"}}>
+        Daily Stats
+      </Text>
+
+      <View style={{ gap: 8 }}>
+        <Text style={{ color: colors.text }}>Calories In: {totalCaloriesIn}</Text>
+        <Text style={{ color: colors.text }}>Calories Out: {totalCaloriesOut}</Text>
+        <Text style={{ color: colors.text }}>
+          Net Calories: {totalCaloriesIn - totalCaloriesOut}
+        </Text>
+        <Text style={{ color: colors.text }}>Protein: {totalProtein}g</Text>
+        <Text style={{ color: colors.text }}>Carbs: {totalCarbs}g</Text>
+        <Text style={{ color: colors.text }}>Fats: {totalFats}g</Text>
+        <Text style={{ color: colors.text }}>Water: {totalWater}ml</Text>
+        <Text style={{ color: colors.text }}>Weight: {latestWeight || 0}</Text>
+      </View>
 
       <LineChart
         data={{
@@ -55,16 +70,40 @@ export default function StatsCard({
             },
           ],
         }}
-        width={Dimensions.get("window").width - 40}
+        width={Dimensions.get("window").width - 72}
         height={220}
-        chartConfig={{
-          backgroundGradientFrom: "#fff",
-          backgroundGradientTo: "#fff",
-          decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-          labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-        }}
+        fromZero
         bezier
+        style={{
+          borderRadius: 16,
+        }}
+        chartConfig={{
+          backgroundColor: colors.card,
+          backgroundGradientFrom: colors.card,
+          backgroundGradientTo: colors.card,
+          decimalPlaces: 0,
+          color: (opacity = 1) => {
+            if (theme === "dark") {
+              return `rgba(167, 139, 250, ${opacity})`;
+            }
+            return `rgba(124, 58, 237, ${opacity})`;
+          },
+          labelColor: (opacity = 1) => {
+            if (theme === "dark") {
+              return `rgba(243, 244, 246, ${opacity})`;
+            }
+            return `rgba(17, 24, 39, ${opacity})`;
+          },
+          propsForDots: {
+            r: "5",
+            strokeWidth: "2",
+            stroke: colors.primary,
+          },
+          propsForBackgroundLines: {
+            stroke: colors.border,
+            strokeDasharray: "",
+          },
+        }}
       />
     </View>
   );
